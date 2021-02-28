@@ -39,7 +39,7 @@ app.get('/', function (req, res) {
 })
 
 app.listen(PORT, () => {
-  console.log('The app is running... You better go catch it.', port)
+  console.log('The app is running... You better go catch it.', PORT)
 })
 
 module.exports = { app }
