@@ -1,6 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
-const cors = requrie('cors')
+const cors = require('cors')
 
 const multiplayerRoutes = require('./app/multiplayer/multiplayerRoutes')
 
