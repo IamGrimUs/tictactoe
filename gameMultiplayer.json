@@ -1,0 +1,7 @@
+{
+  "playerOne": "abc123",
+  "playerTwo": "321cba",
+  "gameBoard": [[],[],[]],
+  "currentPlayer": "playerOne",
+  "winner": ""
+}
