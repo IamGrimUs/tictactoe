@@ -5,7 +5,7 @@ const cors = require('cors')
 const multiplayerRoutes = require('./app/multiplayer/multiplayerRoutes')
 
 const app = express()
-const port = 8080
+const PORT = process.env.PORT || 5000
 
 app.use(express.static('public'))
 app.use('/api/game', multiplayerRoutes)
@@ -38,7 +38,7 @@ app.get('/', function (req, res) {
   res.send('GET request to homepage')
 })
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log('The app is running... You better go catch it.', port)
 })
 
