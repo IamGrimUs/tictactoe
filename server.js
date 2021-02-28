@@ -34,10 +34,6 @@ mongoose.connection.on('open', function () {
   console.log('Connected to MongoDB database.')
 })
 
-app.get('/', function (req, res) {
-  res.send('GET request to homepage')
-})
-
 app.listen(PORT, () => {
   console.log('The app is running... You better go catch it.', PORT)
 })
