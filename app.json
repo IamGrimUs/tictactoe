@@ -1,0 +1,8 @@
+{
+  "name": "TicTacToe",
+  "description": "multiplayer Tic-tac-toe",
+  "repository": "https://github.com/IamGrimUs/tictactoe/",
+  "logo": "",
+  "keywords": ["node", "express", "heroku"],
+  "image": "heroku/nodejs"
+}
