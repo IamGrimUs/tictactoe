@@ -1,64 +1,184 @@
-// user calls start game api
-// query db for game without playerTwo
-// if found user becomes playerTwo
-// if no game is found create game and asign playerOne
-// endpoint should return Schema to both users
-
-// if playerOne is returned without playerTwo
-// client side needs to call api multiple times until playerTwo is filled && board has a selection
-
-// playerTwo should be the first user to select square
-// after selection playerTwo needs to pull from API until playerOne has made selection
-
-// Starting Game(post api)
-// look thourgh DB for records with playerTwo empty
-// when game is started playerId needs to be stored && gameId needs to be stored
-// if playerOne populated no playerTwo you are playerOne
-// if playerOne populated and playerTwo populated you are playerTwo
-
-// Polling
-// is winner, stop
-// if playerOne joined but not playerTwo keep calling api
-// if playerOne joined && playerTwo joined && I am playerOne && gameboard even keep calling api
-// if playerOne joined && playerTwo joined && I am playerTwo && gameboard odd keep calls api
-
 const multiplayerModel = require('./multiplayerModel')
 
-const findOpenGames = async () => {
-  const games = await multiplayerModel.find()
-  return games
+const findOpenGame = async () => {
+  const playerOneToken = ''
+  const game = await multiplayerModel.findOne({
+    playerTwo: { $eq: undefined }
+  })
+  return game
 }
 
 const startGame = async (req, res) => {
-  console.log('hello')
   try {
-    const games = await findOpenGames()
-    console.log('games ', games)
-    if (games) {
-      console.log('games: ', games)
-      res.status(200).json(games)
-    } else {
-      const multiplayerGame = new multiplayerModel({
-        playerOne: 'p1',
-        playerTwo: '',
-        gameBoard: [
-          ['', '', ''],
-          ['', '', ''],
-          ['', '', '']
-        ],
-        winner: ''
+    const playerId = Date.now().toString()
+
+    const matchGame = await findOpenGame()
+    if (matchGame) {
+      matchGame.playerTwo = playerId
+      await matchGame.save()
+
+      res.status(201).json({
+        data: matchGame
       })
-      multiplayerGame.create(err => {
-        if (err) return handleError(err)
-      })
+      return
     }
-    res.status(200).json(games)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: 'Internal server error: ' + err.message })
+
+    const gameBoard = [
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', '']
+    ]
+
+    const newGame = await multiplayerModel.create({
+      playerOne: playerId,
+      gameBoard
+    })
+    res.status(201).json({
+      data: newGame
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    })
+  }
+}
+
+const checkForWin = (board, matchPoint) => {
+  if(matchPoint === board.length) {
+    return true
+  } else {
+    return false
+  }
+}
+
+const checkDiag = (board) => {
+  let matchPoint = 0
+  playerId = ''
+  for(let i = 0; i < board.length; i++) {
+    if(board[i+1] && board[i][i] === board[i+1][i+1] || !board[i+1] && board[i][i] === board[i-1][i-1]) {
+      matchPoint++
+    } else {
+      matchPoint = 0
+      break
+    }
+  }
+
+  if(matchPoint !== board.length) {
+    for(let i = 0; i < board.length; i++) {
+      const pos = board[i].length - 1 - i;
+      if(board[i+1] && board[i][pos] === board[i+1][pos - 1] || !board[i+1] && board[i][pos] === board[i - 1][pos + 1]) {
+        matchPoint++
+        playerId = board[i][pos]
+      } else {
+        matchPoint = 0
+        playerId = ''
+        break
+      }
+    }
+  }
+  if(checkForWin(board, matchPoint)) return playerId
+}
+
+const checkHori = (board) => {
+  let matchPoint = 0
+  let playerId = ''
+  for(let i = 0; i < board.length; i++) {
+    for(let j = 0; j < board[i].length; j++) {
+      if(board[i][j+1] !== undefined && board[i][j] === board[i][j+1] || board[i][j+1] === undefined && board[i][j] === board[i][j-1]) {
+        matchPoint++
+        playerId = board[i][j]
+      } else {
+        matchPoint = 0
+        playerId = ''
+        break
+      }
+    }
+    if(checkForWin(board, matchPoint)) return playerId
+  }
+}
+
+const checkVert = (board) => {
+  let matchPoint = 0
+  playerId = ''
+  for(let i = 0; i < board.length; i++) {
+    for(let j = 0; j < board.length; j++) {
+      if(board[j+1] && board[j][i] === board[j+1][i] || !board[j+1] && board[j][i] === board[j-1][i]) {
+        matchPoint++
+        plauerId = board[j][i]
+      } else {
+        matchPoint = 0
+        playerId = ''
+        break
+      }
+    }
+    if (checkForWin(board, matchPoint)) return playerId
+  }
+}
+
+const checkforWinner = (board) => {
+  let winner = checkDiag(board) || checkHori(board) || checkVert(board)
+  return winner
+}
+
+const playerMove = (req, res) => {
+  try {
+    const gameId = req.params.id
+    const { playerId, row, column } = req.body
+    const game = await multiplayerModel.findOne({
+      _id: gameId
+    })
+
+    if(!game){
+      res.status(404).json({
+        message: `game ${gameId} not found`
+      })
+      return;
+    }
+
+    game.gameBoard[row, column] = playerId
+
+    const winner = checkforWinner(game.gameBoard)
+
+    if (winner) game.winner = winner
+
+    await game.save()
+
+    res.status(201).json({
+      data: game
+    })
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    })
+  }
+}
+
+const getGame = (req, res) => {
+  try {
+    const gameId = req.params.id
+    const game = await multiplayerModel.findOne({
+      _id: gameId
+    })
+    if(!game){
+      res.status(404).json({
+        message: `game ${gameId} not found`
+      })
+      return;
+    }
+
+    res.status(200).json({
+      data: game
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    })
   }
 }
 
 module.exports = {
-  startGame
+  startGame,
+  playerMove,
+  getGame
 }

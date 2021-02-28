@@ -2,25 +2,25 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 
-const multiplayerRoutes = require('./app/multiplayer/multiplayerRoutes')
+const multiplayerRouter = require('./app/multiplayer/multiplayerRoutes')
 
 const app = express()
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 3000
 
-app.use(express.static('public'))
-app.use('/api/game', multiplayerRoutes)
 app.use(cors())
+app.use(express.static('public'))
+app.use('/api/game', multiplayerRouter)
 
 // CORS
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE')
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204)
-  }
-  next()
-})
+// app.use(function (req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+//   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE')
+//   if (req.method === 'OPTIONS') {
+//     return res.sendStatus(204)
+//   }
+//   next()
+// })
 
 const mongoString = 'mongodb+srv://r_dbl_l:t__thPile333@cluster0.0dpsk.mongodb.net/tictactoe?retryWrites=true&w=majority'
 
