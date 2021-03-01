@@ -8,7 +8,7 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: false }))
 
 router.post('/', multiplayerController.startGame)
-router.put('/:id', multiplayerController.playerMove) // sending player selection to game record with matching ID then checking for win conditions
-router.get('/:id', multiplayerController.getGame) // constantly return game record
+router.get('/:id', multiplayerController.getGame)
+router.put('/:id', multiplayerController.playerMove)
 
 module.exports = router

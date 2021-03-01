@@ -3,11 +3,7 @@ const mongoose = require('mongoose')
 const multiplayerSchema = new mongoose.Schema({
   playerOne: { type: String, required: true },
   playerTwo: { type: String },
-  gameBoard: [
-    [String, String, String],
-    [String, String, String],
-    [String, String, String]
-  ],
+  gameBoard: [mongoose.Schema.Types.Mixed],
   winner: String
 })
 
