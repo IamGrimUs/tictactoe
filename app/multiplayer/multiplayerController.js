@@ -148,7 +148,8 @@ const playerMove = async (req, res) => {
 
     res.status(200).json({
       data: updatedGame,
-      version: Date.now()
+      version: Date.now(),
+      body: req.body
     })
   } catch (error) {
     res.status(500).json({
