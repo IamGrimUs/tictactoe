@@ -56,8 +56,10 @@ const checkDiag = board => {
   for (let i = 0; i < board.length; i++) {
     if ((board[i + 1] && board[i][i] === board[i + 1][i + 1]) || (!board[i + 1] && board[i][i] === board[i - 1][i - 1])) {
       matchPoint++
+      playerId = board[i][i]
     } else {
       matchPoint = 0
+      playerId = ''
       break
     }
   }
@@ -103,7 +105,7 @@ const checkVert = board => {
     for (let j = 0; j < board.length; j++) {
       if ((board[j + 1] && board[j][i] === board[j + 1][i]) || (!board[j + 1] && board[j][i] === board[j - 1][i])) {
         matchPoint++
-        plauerId = board[j][i]
+        playerId = board[j][i]
       } else {
         matchPoint = 0
         playerId = ''
@@ -147,9 +149,7 @@ const playerMove = async (req, res) => {
     })
 
     res.status(200).json({
-      data: updatedGame,
-      version: Date.now(),
-      body: req.body
+      data: updatedGame
     })
   } catch (error) {
     res.status(500).json({
